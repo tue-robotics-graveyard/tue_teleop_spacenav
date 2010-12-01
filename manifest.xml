@@ -1,0 +1,18 @@
+<package>
+  <description brief="spacenav_publisher">
+
+     spacenav_publisher
+
+  </description>
+  <author>N. Dirkx</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/spacenav_publisher</url>
+  <depend package="roscpp"/>
+  <depend package="joy"/>
+  <depend package="geometry_msgs"/>
+  <depend package="amigo_msgs"/>
+
+</package>
+
+

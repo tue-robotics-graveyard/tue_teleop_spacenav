@@ -1,0 +1,7 @@
+<launch>
+   <node name="spacenav_node" pkg="spacenav_node" type="spacenav_node"/>
+  <node name="spacenav_publisher" pkg="spacenav_publisher" type="spacenav_publisher_walltime" output="screen">
+  <!--<remap from="joint_controller/cmd_vel" to="cmd_vel" />-->
+  </node>
+</launch>
+
