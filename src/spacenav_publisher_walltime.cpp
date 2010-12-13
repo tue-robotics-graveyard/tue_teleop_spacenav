@@ -280,7 +280,7 @@ void SpaceNavCallback(const joy::Joy::ConstPtr& msg)
    vel_msg.linear.x=linear_x;
    vel_msg.linear.y=linear_y;
    vel_msg.linear.z=linear_z;
-   vel_msg.angular.z=-angular_z;
+   vel_msg.angular.z=angular_z;
 
    vel_pub.publish(vel_msg);
    ROS_INFO("x=%f\ty=%f\tz=%f\tz_ang=%f\t",vx,vy,linear_z,vz);
