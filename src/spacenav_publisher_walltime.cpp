@@ -298,7 +298,7 @@ int main(int argc, char** argv){
   ros::NodeHandle n;
   ros::Subscriber spacenav_sub = n.subscribe("/spacenav/joy", 1, &SpaceNavCallback);
   cart_pub = n.advertise<amigo_msgs::tip_ref>("cart_coordinates", 1);
-  vel_pub = n.advertise<geometry_msgs::Twist>("/joint_controller/cmd_vel", 1);
+  vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
   ros::Rate rate(1000);
   ros::WallTime current_time2;
   init_time = ros::WallTime::now().toSec();
