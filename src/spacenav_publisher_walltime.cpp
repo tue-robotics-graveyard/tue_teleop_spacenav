@@ -49,8 +49,8 @@ double vz=0;
 double acc_lin=0.02;
 double acc_ang=0.1;
 double scale=0.1;
-double scale_lin=55;
-double scale_ang=13;
+double scale_lin=5.5;
+double scale_ang=7;
 
 
 
