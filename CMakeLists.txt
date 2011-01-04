@@ -30,4 +30,4 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #target_link_libraries(example ${PROJECT_NAME})
 
 #rosbuild_add_executable(spacenav_publisher src/spacenav_publisher.cpp)
-rosbuild_add_executable(spacenav_publisher_walltime src/spacenav_publisher_walltime.cpp)
+rosbuild_add_executable(spacenav_publisher src/spacenav_publisher.cpp)

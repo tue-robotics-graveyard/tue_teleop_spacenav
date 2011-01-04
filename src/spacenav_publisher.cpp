@@ -3,117 +3,116 @@
 #include <math.h>
 
 #include <geometry_msgs/Twist.h>
-#include <nav_msgs/Odometry.h>
-#include <amigo_msgs/tip_ref.h>
-#include <tf/transform_broadcaster.h>
 
-double xd=0.0;
-double yd=0.0;
-double zd=0.0;
-double rolld=0.0;
-double pitchd=0.0;
-double yawd=0.0;
-double current_time;
-double last_time;
-double dt=0;
-double x=0;
-double y=0;
-double z=0;
-double roll=0;
-double pitch=0;
-double yaw=0;
-double x_min=0.0014;
+
+double x_min=0.3;
+double y_min=0.3;
+double z_min=0.3;
+
+double x_max=0.2;
+double y_max=0.2;
+double z_max=0.2;
+double z_ang_max=0.6;
+
+
 double init_time;
-double scale=0.01;
-ros::Publisher cart_pub;
-amigo_msgs::tip_ref cart_msg;
+double current_time;
+
+double x_range=0.68;
+double y_range=0.68;
+double z_range=0.68;
+double z_ang_range=0.68;
+
+ros::Publisher vel_pub;
+geometry_msgs::Twist vel_msg;
+int mode=1;
+double timer=0;
+double check=0.1;
+double linear_x;
+double linear_y;
+double linear_z;
+double angular_z;
+
+
 
 
 void SpaceNavCallback(const joy::Joy::ConstPtr& msg)
-{  current_time = ros::Time::now().toSec()-init_time;
-   dt=current_time-last_time;
-   if (dt>0.05){
-        xd=0;
-        yd=0;
-        zd=0;
-        rolld=0;
-        pitchd=0;
-        yawd=0;
-   }
-   else
-   {}
-   //set thresholds for reducing the sensitivity
-   xd=-1*scale*(msg->axes[0]);
-  //ROS_INFO("xd%f\t",xd);
-   if (xd>-x_min && xd<x_min)
-      xd=0;
-   else
-   {xd-=0;}
-
-   yd=-1*scale*(msg->axes[1]);
-   if (yd>-x_min && yd<x_min)
-      yd=0;
-   else
-   {yd-=0;}
-
-   zd=-1*scale*(msg->axes[2]);
-   if (zd>-x_min && zd<x_min)
-      zd=0;
-   else
-   {zd-=0;}
-
-   rolld=-1*scale*(msg->axes[3]);
-   if (rolld>-x_min && rolld<x_min)
-      rolld=0;
-   else
-   {rolld-=0;}
-
-   pitchd=-1*scale*(msg->axes[4]);
-   if (pitchd>-x_min && pitchd<x_min)
-      pitchd=0;
-   else
-   {pitchd-=0;}
-
-   yawd=-1*scale*(msg->axes[5]);
-   if (yawd>-x_min && yawd<x_min)
-      yawd=0;
-   else
-   {yawd-=0;}
-
-   //numerically integrate
-   x+=xd*dt;
-   y+=yd*dt;
-   z+=zd*dt;
-   roll+=rolld*dt;
-   pitch+=pitchd*dt;
-   yaw+=yawd*dt;
+{  current_time = ros::WallTime::now().toSec()-init_time;
    
- ROS_INFO("xd=%f\tyd=%f\tzd=%f\trd=%f\tpd=%f\tyd=%f\tdt=%f\tt=%f\t",xd,yd,zd,rolld,pitchd,yawd,dt,current_time);
+   int button=msg->buttons[0];
+      check=ros::WallTime::now().toSec()-init_time-timer;
+   if (button==1){
 
-   //print to screen
-  //ROS_INFO("xd=%f\tyd=%f\tzd=%f\trd=%f\tpd=%f\tyd=%f\tdt=%f\t",x,y,z,roll,pitch,yaw,dt);
-  
-//ROS_INFO("dt=%f\t",dt);
-  //ROS_INFO("time=%f\t",current_time);
-
-   cart_msg.t=current_time;
-   cart_msg.x=x;
-   cart_msg.y=y;
-   cart_msg.z=z;
-   cart_msg.roll=roll;
-   cart_msg.pitch=pitch;
-   cart_msg.yaw=yaw;
-   cart_msg.xd=xd;
-   cart_msg.yd=yd;
-   cart_msg.zd=zd;
-   cart_msg.rolld=rolld;
-   cart_msg.pitchd=pitchd;
-   cart_msg.yawd=yawd;
-
-   cart_pub.publish(cart_msg);
+      if (mode==1 && check>=0.5){
+          mode=2;
+          timer=ros::WallTime::now().toSec()-init_time;
+      }
+      else if (mode==2 && check>=0.5){
+          mode=1;
+          timer=ros::WallTime::now().toSec()-init_time;
+      }
+   };
 
    
-   last_time = ros::Time::now().toSec()-init_time;
+   // moving base mode
+   if (mode==2){
+   ROS_INFO("Moving base mode");
+
+  linear_x=msg->axes[0]/x_range;
+   if (linear_x>x_min){
+      linear_x=(linear_x-x_min)/(1-x_min);
+      }
+   else if (linear_x<-x_min){ 
+     linear_x=(linear_x+x_min)/(1-x_min);
+     } 
+   else
+   {linear_x=0;}
+
+
+  linear_y=msg->axes[1]/y_range;
+   if (linear_y>y_min){
+      linear_y=(linear_y-y_min)/(1-y_min);
+      }
+   else if (linear_y<-y_min){ 
+     linear_y=(linear_y+y_min)/(1-y_min);
+     } 
+   else
+   {linear_y=0;}
+
+ 
+  linear_z=msg->axes[2]/z_range;
+   if (linear_z>z_min){
+      linear_z=(linear_z-z_min)/(1-z_min);
+      }
+   else if (linear_z<-z_min){ 
+     linear_z=(linear_z+z_min)/(1-z_min);
+     } 
+   else
+   {linear_z=0;}
+
+
+   angular_z=msg->axes[5]/z_ang_range;
+   if (angular_z>z_min){
+      angular_z=(angular_z-z_min)/(1-z_min);
+      }
+   else if (angular_z<-z_min){ 
+     angular_z=(angular_z+z_min)/(1-z_min);
+     } 
+   else
+   {angular_z=0;}
+
+
+   vel_msg.linear.x=x_max*linear_x;
+   vel_msg.linear.y=y_max*linear_y;
+   vel_msg.linear.z=z_max*linear_z;
+   vel_msg.angular.z=z_ang_max*angular_z;
+
+   vel_pub.publish(vel_msg);
+   ROS_INFO("x=%f\ty=%f\tz=%f\tz_ang=%f\t",vel_msg.linear.x,vel_msg.linear.y,vel_msg.linear.z,vel_msg.angular.z);
+   };
+
+
+   
 }
 
 
@@ -123,65 +122,11 @@ int main(int argc, char** argv){
 
   ros::NodeHandle n;
   ros::Subscriber spacenav_sub = n.subscribe("/spacenav/joy", 1, &SpaceNavCallback);
-  ros::Publisher odom_pub2 = n.advertise<nav_msgs::Odometry>("/odom", 1);
-  cart_pub = n.advertise<amigo_msgs::tip_ref>("cart_coordinates", 1);
+  vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
   ros::Rate rate(1000);
-  tf::TransformBroadcaster odom_broadcaster;
-  ros::Time current_time2;
-  init_time = ros::Time::now().toSec();
+  ros::WallTime current_time2;
+  init_time = ros::WallTime::now().toSec();
   while (n.ok()){
-
-
-
-
-
-    geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromRollPitchYaw(roll,pitch,yaw);
-    current_time2 = ros::Time::now();
-
-    //first, we'll publish the transform over tf
-    geometry_msgs::TransformStamped odom_trans;
-    odom_trans.header.stamp = current_time2;
-    odom_trans.header.frame_id = "odom";
-    odom_trans.child_frame_id = "base_link";
-
-    odom_trans.transform.translation.x = x;
-    odom_trans.transform.translation.y = y;
-    odom_trans.transform.translation.z = z;
-    odom_trans.transform.rotation = odom_quat;
-
-    //send the transform
-    odom_broadcaster.sendTransform(odom_trans);
-
-    //next, we'll publish the odometry message over ROS
-    nav_msgs::Odometry odom;
-    odom.header.stamp = current_time2;
-    odom.header.frame_id = "odom";
-
-    //set the position
-    odom.pose.pose.position.x = x;
-    odom.pose.pose.position.y = y;
-    odom.pose.pose.position.z = z;
-    odom.pose.pose.orientation = odom_quat;
-
-    //set the velocity
-    odom.child_frame_id = "base_link";
-    odom.twist.twist.linear.x = xd;
-    odom.twist.twist.linear.y = yd;
-    odom.twist.twist.angular.z = zd;
-
-    //publish the message  (misschien staan x en y nog omgewisseld)
-    odom_pub2.publish(odom);
-
-
-
-
-
-
-
-
-
-
-
 
   ros::spinOnce();
   rate.sleep();
