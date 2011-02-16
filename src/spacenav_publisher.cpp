@@ -9,10 +9,10 @@ double x_min=0.3;
 double y_min=0.3;
 double z_min=0.3;
 
-double x_max=0.2;
-double y_max=0.2;
-double z_max=0.2;
-double z_ang_max=0.6;
+double x_max=0.5;
+double y_max=0.5;
+double z_max=0.5;
+double z_ang_max=0.8;
 
 
 double init_time;
