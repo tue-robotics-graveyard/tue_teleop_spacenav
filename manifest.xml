@@ -11,6 +11,8 @@
   <depend package="roscpp"/>
   <depend package="joy"/>
   <depend package="geometry_msgs"/>
+  <depend package="amigo_msgs"/>
+  <depend package="amigo_kinematics"/>
 
 </package>
 
