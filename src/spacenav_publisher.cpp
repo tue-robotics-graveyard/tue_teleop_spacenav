@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <joy/Joy.h>
 #include <math.h>
+#include "sensor_msgs/Joy.h"
 
 #include <geometry_msgs/Twist.h>
 #include <amigo_msgs/head_ref.h>
@@ -31,9 +32,7 @@ double ang_scale = 0.1;
 double prev_left_pos[6] = { 0.4, 0.2, 0.8, 0.0, 0.0, 0.0 };
 double prev_right_pos[6] = { 0.4, -0.2, 0.8, 0.0, 0.0, 0.0 };
 
-
-
-void SpaceNavCallback(const joy::Joy::ConstPtr& msg)
+void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 {
 	double current_time = ros::WallTime::now().toSec() - init_time;
 	double dt = current_time - last_time;

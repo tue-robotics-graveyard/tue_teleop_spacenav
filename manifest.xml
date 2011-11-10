@@ -13,6 +13,7 @@
   <depend package="geometry_msgs"/>
   <depend package="amigo_msgs"/>
   <depend package="amigo_kinematics"/>
+  <depend package="sensor_msgs"/>
 
 </package>
 
