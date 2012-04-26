@@ -31,3 +31,5 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 #rosbuild_add_executable(spacenav_publisher src/spacenav_publisher.cpp)
 rosbuild_add_executable(spacenav_publisher src/spacenav_publisher.cpp)
+rosbuild_add_executable(spacenav_publisher_base_only src/spacenav_publisher_base_only.cpp)
+
