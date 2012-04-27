@@ -6,12 +6,12 @@
 #include <geometry_msgs/Twist.h>
 
 // Defined variables: //@TODO: Create parameters
-#define minumum_movement 0.15
+#define minumum_movement 0.2
 #define joystick_range 0.68
 #define max_translational_speed 0.5
 #define max_angular_speed 0.8
 
-
+bool zeros; // Keep track of value
 
 ros::Publisher vel_pub;
 
@@ -45,6 +45,18 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 		vel_msg.angular.z = max_angular_speed * dof[5];
 
 		vel_pub.publish(vel_msg);
+		zeros = false;
+	}
+	else if (!zeros)
+	{
+		geometry_msgs::Twist vel_msg;
+		vel_msg.linear.x = 0;
+		vel_msg.linear.y = 0;
+		vel_msg.linear.z = 0;
+		vel_msg.angular.z = 0;
+
+		vel_pub.publish(vel_msg);
+		zeros = true;
 	}
 }
 
