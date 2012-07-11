@@ -58,7 +58,7 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
     // Switch between modes:
     if (button1){
-        if (mode <= 4 && !pressed){
+        if (mode <= 3 && !pressed){
             mode++;
             ROS_INFO("Mode = %u",mode);
         }
@@ -164,8 +164,8 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
             arm_msg.linear.y = lin_scale * dof[1];
             arm_msg.linear.z = lin_scale * dof[2];
             arm_msg.angular.x = ang_scale * dof[3];
-            arm_msg.angular.x = ang_scale * dof[4];
-            arm_msg.angular.x = ang_scale * dof[5];
+            arm_msg.angular.y = ang_scale * dof[4];
+            arm_msg.angular.z = ang_scale * dof[5];
 
             arm_left_pub.publish(arm_msg);
 
@@ -218,8 +218,8 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
             arm_msg.linear.y = lin_scale * dof[1];
             arm_msg.linear.z = lin_scale * dof[2];
             arm_msg.angular.x = ang_scale * dof[3];
-            arm_msg.angular.x = ang_scale * dof[4];
-            arm_msg.angular.x = ang_scale * dof[5];
+            arm_msg.angular.y = ang_scale * dof[4];
+            arm_msg.angular.z = ang_scale * dof[5];
 
             arm_right_pub.publish(arm_msg);
 
