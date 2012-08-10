@@ -4,6 +4,7 @@
 #include "sensor_msgs/Joy.h"
 
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/TwistStamped.h>
 #include <amigo_msgs/head_ref.h>
 #include <amigo_kinematics/set_Arm.h>
 
@@ -158,14 +159,15 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
             ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", lin_scale * dof[0], lin_scale * dof[1], lin_scale * dof[2], ang_scale * dof[3], ang_scale * dof[4], ang_scale * dof[5]);
 
-            geometry_msgs::Twist arm_msg;
+            geometry_msgs::TwistStamped arm_msg;
 
-            arm_msg.linear.x = lin_scale * dof[0];
-            arm_msg.linear.y = lin_scale * dof[1];
-            arm_msg.linear.z = lin_scale * dof[2];
-            arm_msg.angular.x = ang_scale * dof[3];
-            arm_msg.angular.y = ang_scale * dof[4];
-            arm_msg.angular.z = ang_scale * dof[5];
+			arm_msg.header.frame_id = "base_link";
+            arm_msg.twist.linear.x = lin_scale * dof[0];
+            arm_msg.twist.linear.y = lin_scale * dof[1];
+            arm_msg.twist.linear.z = lin_scale * dof[2];
+            arm_msg.twist.angular.x = ang_scale * dof[3];
+            arm_msg.twist.angular.y = ang_scale * dof[4];
+            arm_msg.twist.angular.z = ang_scale * dof[5];
 
             arm_left_pub.publish(arm_msg);
 
@@ -212,14 +214,15 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
             ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", lin_scale * dof[0], lin_scale * dof[1], lin_scale * dof[2], ang_scale * dof[3], ang_scale * dof[4], ang_scale * dof[5]);
 
-            geometry_msgs::Twist arm_msg;
+            geometry_msgs::TwistStamped arm_msg;
 
-            arm_msg.linear.x = lin_scale * dof[0];
-            arm_msg.linear.y = lin_scale * dof[1];
-            arm_msg.linear.z = lin_scale * dof[2];
-            arm_msg.angular.x = ang_scale * dof[3];
-            arm_msg.angular.y = ang_scale * dof[4];
-            arm_msg.angular.z = ang_scale * dof[5];
+			arm_msg.header.frame_id = "base_link";
+            arm_msg.twist.linear.x = lin_scale * dof[0];
+            arm_msg.twist.linear.y = lin_scale * dof[1];
+            arm_msg.twist.linear.z = lin_scale * dof[2];
+            arm_msg.twist.angular.x = ang_scale * dof[3];
+            arm_msg.twist.angular.y = ang_scale * dof[4];
+            arm_msg.twist.angular.z = ang_scale * dof[5];
 
             arm_right_pub.publish(arm_msg);
 
@@ -241,8 +244,8 @@ int main(int argc, char** argv){
     head_pub = n.advertise<amigo_msgs::head_ref>("/head_controller/set_Head", 1);
     //arm_left_pub = n.serviceClient<amigo_kinematics::set_Arm>("/arm_left/set_tip");
     //arm_right_pub = n.serviceClient<amigo_kinematics::set_Arm>("/arm_right/set_tip");
-    arm_left_pub = n.advertise<geometry_msgs::Twist>("/arm_left_controller/cartesian_velocity_reference",1);
-    arm_right_pub = n.advertise<geometry_msgs::Twist>("/arm_right_controller/cartesian_velocity_reference",1);
+    arm_left_pub = n.advertise<geometry_msgs::TwistStamped>("/arm_left_controller/cartesian_velocity_reference",1);
+    arm_right_pub = n.advertise<geometry_msgs::TwistStamped>("/arm_right_controller/cartesian_velocity_reference",1);
 
     init_time = ros::WallTime::now().toSec();
 
