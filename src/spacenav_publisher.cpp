@@ -16,8 +16,8 @@ uint mode = 0;
 
 double minimum_movement;
 double joystick_range;
-double max_translational_speed;
-double max_angular_speed;
+double max_linear_speed_base;
+double max_angular_speed_base;
 
 ros::Publisher vel_pub;
 ros::Publisher head_pub;
@@ -27,8 +27,8 @@ ros::Publisher arm_left_pub;
 ros::Publisher arm_right_pub;
 
 // Arms:
-double lin_scale = 0.05;
-double ang_scale = 0.1;
+double max_linear_speed_arms = 0.05;
+double max_angular_speed_arms = 0.1;
 
 double prev_left_pos[6] = { 0.4, 0.2, 0.8, 0.0, 0.0, 0.0 };
 double prev_right_pos[6] = { 0.4, -0.2, 0.8, 0.0, 0.0, 0.0 };
@@ -100,10 +100,10 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
             ROS_INFO("Moving base mode");
 
             geometry_msgs::Twist vel_msg;
-            vel_msg.linear.x = max_translational_speed * dof[0];
-            vel_msg.linear.y = max_translational_speed * dof[1];
-            vel_msg.linear.z = max_translational_speed * dof[2];
-            vel_msg.angular.z = max_angular_speed * dof[5];
+            vel_msg.linear.x = max_linear_speed_base * dof[0];
+            vel_msg.linear.y = max_linear_speed_base * dof[1];
+            vel_msg.linear.z = max_linear_speed_base * dof[2];
+            vel_msg.angular.z = max_angular_speed_base * dof[5];
 
             vel_pub.publish(vel_msg);
             break;
@@ -116,9 +116,9 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 		//numerically integrate
 		double pos[6];
 		for ( uint i = 0; i < 3; i++ )
-			pos[i] = prev_left_pos[i] + lin_scale * dof[i] * dt;
+			pos[i] = prev_left_pos[i] + max_linear_speed_arms * dof[i] * dt;
 		for ( uint i = 3; i < 6; i++ )
-			pos[i] = prev_left_pos[i] + ang_scale * dof[i] * dt;
+			pos[i] = prev_left_pos[i] + max_angular_speed_arms * dof[i] * dt;
 
 		ROS_INFO("x = %f  \t y = %f \t z = %f \t r = %f \t p = %f \t y = %f \t dt = %f \t ", pos[0], pos[1], pos[2], pos[3], pos[4], pos[5], dt );
 
@@ -157,17 +157,17 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 		}
              */
 
-            ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", lin_scale * dof[0], lin_scale * dof[1], lin_scale * dof[2], ang_scale * dof[3], ang_scale * dof[4], ang_scale * dof[5]);
+            ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", max_linear_speed_arms * dof[0], max_linear_speed_arms * dof[1], max_linear_speed_arms * dof[2], max_angular_speed_arms * dof[3], max_angular_speed_arms * dof[4], max_angular_speed_arms * dof[5]);
 
             geometry_msgs::TwistStamped arm_msg;
 
 			arm_msg.header.frame_id = "base_link";
-            arm_msg.twist.linear.x = lin_scale * dof[0];
-            arm_msg.twist.linear.y = lin_scale * dof[1];
-            arm_msg.twist.linear.z = lin_scale * dof[2];
-            arm_msg.twist.angular.x = ang_scale * dof[3];
-            arm_msg.twist.angular.y = ang_scale * dof[4];
-            arm_msg.twist.angular.z = ang_scale * dof[5];
+            arm_msg.twist.linear.x = max_linear_speed_arms * dof[0];
+            arm_msg.twist.linear.y = max_linear_speed_arms * dof[1];
+            arm_msg.twist.linear.z = max_linear_speed_arms * dof[2];
+            arm_msg.twist.angular.x = max_angular_speed_arms * dof[3];
+            arm_msg.twist.angular.y = max_angular_speed_arms * dof[4];
+            arm_msg.twist.angular.z = max_angular_speed_arms * dof[5];
 
             arm_left_pub.publish(arm_msg);
 
@@ -212,17 +212,17 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
             }
              */
 
-            ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", lin_scale * dof[0], lin_scale * dof[1], lin_scale * dof[2], ang_scale * dof[3], ang_scale * dof[4], ang_scale * dof[5]);
+            ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", max_linear_speed_arms * dof[0], max_linear_speed_arms * dof[1], max_linear_speed_arms * dof[2], max_angular_speed_arms * dof[3], max_angular_speed_arms * dof[4], max_angular_speed_arms * dof[5]);
 
             geometry_msgs::TwistStamped arm_msg;
 
 			arm_msg.header.frame_id = "base_link";
-            arm_msg.twist.linear.x = lin_scale * dof[0];
-            arm_msg.twist.linear.y = lin_scale * dof[1];
-            arm_msg.twist.linear.z = lin_scale * dof[2];
-            arm_msg.twist.angular.x = ang_scale * dof[3];
-            arm_msg.twist.angular.y = ang_scale * dof[4];
-            arm_msg.twist.angular.z = ang_scale * dof[5];
+            arm_msg.twist.linear.x = max_linear_speed_arms * dof[0];
+            arm_msg.twist.linear.y = max_linear_speed_arms * dof[1];
+            arm_msg.twist.linear.z = max_linear_speed_arms * dof[2];
+            arm_msg.twist.angular.x = max_angular_speed_arms * dof[3];
+            arm_msg.twist.angular.y = max_angular_speed_arms * dof[4];
+            arm_msg.twist.angular.z = max_angular_speed_arms * dof[5];
 
             arm_right_pub.publish(arm_msg);
 
@@ -252,8 +252,10 @@ int main(int argc, char** argv){
     //Load parameters
     n.param<double> (ns+"/minimum_movement", minimum_movement, 0.2);
     n.param<double> (ns+"/joystick_range", joystick_range, 0.68);
-    n.param<double> (ns+"/max_linear_speed", max_translational_speed, 0.5);
-    n.param<double> (ns+"/max_angular_speed", max_angular_speed, 0.8);
+    n.param<double> (ns+"/max_linear_speed_base", max_linear_speed_base, 0.5);
+    n.param<double> (ns+"/max_angular_speed_base", max_angular_speed_base, 0.8);
+    n.param<double> (ns+"/max_linear_speed_arms", max_linear_speed_arms, 0.05);
+    n.param<double> (ns+"/max_angular_speed_arms", max_angular_speed_arms, 0.1);
 
     ros::Rate rate(15);
     while (n.ok()){

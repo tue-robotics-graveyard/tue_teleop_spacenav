@@ -4,8 +4,10 @@
   
     <param name="minimum_movement" value="0.2"/>
   	<param name="joystick_range" value="0.68"/>
-  	<param name="max_linear_speed" value="0.5"/>
-  	<param name="max_angular_speed" value="0.8"/>
+  	<param name="max_linear_speed_base" value="0.5"/>
+  	<param name="max_angular_speed_base" value="0.8"/>
+  	<param name="max_linear_speed_arms" value="0.1"/>
+  	<param name="max_angular_speed_arms" value="0.6"/>
   
   </node>
 
