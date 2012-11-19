@@ -3,12 +3,16 @@
 #include <math.h>
 #include "sensor_msgs/Joy.h"
 
+#include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <amigo_msgs/head_ref.h>
 #include <amigo_kinematics/set_Arm.h>
+#include <amigo_msgs/spindle_setpoint.h>
 
 // Global variables
+double loop_rate = 15;
+
 bool pressed;
 double init_time;
 double last_time;
@@ -23,8 +27,13 @@ ros::Publisher vel_pub;
 ros::Publisher head_pub;
 //ros::ServiceClient arm_left_pub;
 //ros::ServiceClient arm_right_pub;
+ros::Publisher torso_pub;
 ros::Publisher arm_left_pub;
 ros::Publisher arm_right_pub;
+
+// Torso
+double max_torso_speed = 0.1;
+double current_torso_pos = 0.35; //0.35 is torso height at startup
 
 // Arms:
 double max_linear_speed_arms = 0.05;
@@ -59,7 +68,7 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
     // Switch between modes:
     if (button1){
-        if (mode <= 3 && !pressed){
+        if (mode <= 4 && !pressed){
             mode++;
             ROS_INFO("Mode = %u",mode);
         }
@@ -108,54 +117,25 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
             vel_pub.publish(vel_msg);
             break;
         }
+
         case 3:
         {
+
+            ROS_INFO("Moving torso mode");
+
+            amigo_msgs::spindle_setpoint torso_msg;
+            torso_msg.pos = current_torso_pos + max_torso_speed * dof[2] / loop_rate;
+            torso_msg.vel = max_torso_speed * dof[2];
+            torso_msg.stop = 0;
+
+            torso_pub.publish(torso_msg);
+            break;
+
+        }
+
+        case 4:
+        {
             ROS_INFO("Moving left arm mode");
-
-            /*
-		//numerically integrate
-		double pos[6];
-		for ( uint i = 0; i < 3; i++ )
-			pos[i] = prev_left_pos[i] + max_linear_speed_arms * dof[i] * dt;
-		for ( uint i = 3; i < 6; i++ )
-			pos[i] = prev_left_pos[i] + max_angular_speed_arms * dof[i] * dt;
-
-		ROS_INFO("x = %f  \t y = %f \t z = %f \t r = %f \t p = %f \t y = %f \t dt = %f \t ", pos[0], pos[1], pos[2], pos[3], pos[4], pos[5], dt );
-
-		amigo_kinematics::set_Arm arm_srv;
-		arm_srv.request.x = pos[0];
-		arm_srv.request.y = pos[1];
-		arm_srv.request.z = pos[2];
-		arm_srv.request.roll = pos[3];
-		arm_srv.request.pitch = pos[4];
-		arm_srv.request.yaw = pos[5];
-
-		bool change = false;
-		for ( uint i = 0; i < 3; i++ )
-			if (pos[i] != prev_left_pos[i])
-				change = true;
-
-		if (change)
-		{
-			if (arm_left_pub.call(arm_srv))
-			{
-				if (arm_srv.response.ik_valid)
-				{
-					ROS_INFO("Jeej");
-					for ( uint i = 0; i < 6; i++ )
-						prev_left_pos[i] = pos[i];
-				}
-				else
-				{
-					ROS_INFO("Invalid position.");
-				}
-			}
-			else
-			{
-				ROS_ERROR("Failed to call service set_Arm");
-			}
-		}
-             */
 
             ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", max_linear_speed_arms * dof[0], max_linear_speed_arms * dof[1], max_linear_speed_arms * dof[2], max_angular_speed_arms * dof[3], max_angular_speed_arms * dof[4], max_angular_speed_arms * dof[5]);
 
@@ -173,44 +153,9 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
             break;
         }
-        case 4:
+        case 5:
         {
             ROS_INFO("Moving right arm mode");
-
-            /*
-            //numerically integrate
-            double pos[6];
-            for ( uint i = 0; i < 6; i++ )
-                pos[i] = prev_right_pos[i] + dof[i] * dt;
-
-            ROS_INFO("x = %f  \t y = %f \t z = %f \t r = %f \t p = %f \t y = %f \t dt = %f \t ", pos[0], pos[1], pos[2], pos[3], pos[4], pos[5], dt );
-
-            amigo_kinematics::set_Arm arm_srv;
-            arm_srv.request.x = pos[0];
-            arm_srv.request.y = pos[1];
-            arm_srv.request.z = pos[2];
-            arm_srv.request.roll = -pos[3];
-            arm_srv.request.pitch = -pos[4];
-            arm_srv.request.yaw = -pos[5];
-
-            if (arm_right_pub.call(arm_srv))
-            {
-                if (arm_srv.response.ik_valid)
-                {
-                    ROS_INFO("Jeej");
-                    for ( uint i = 0; i < 6; i++ )
-                        prev_right_pos[i] = pos[i];
-                }
-                else
-                {
-                    ROS_INFO("Invalid position.");
-                }
-            }
-            else
-            {
-                ROS_ERROR("Failed to call service set_Arm");
-            }
-             */
 
             ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", max_linear_speed_arms * dof[0], max_linear_speed_arms * dof[1], max_linear_speed_arms * dof[2], max_angular_speed_arms * dof[3], max_angular_speed_arms * dof[4], max_angular_speed_arms * dof[5]);
 
@@ -232,6 +177,13 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
 }
 
+void TorsoCallback(const std_msgs::Float64::ConstPtr& msg) {
+
+    // Fill in data in spindle position
+    current_torso_pos = msg->data;
+
+}
+
 int main(int argc, char** argv){
     ros::init(argc, argv, "spacenav_publisher");
 
@@ -244,6 +196,10 @@ int main(int argc, char** argv){
     head_pub = n.advertise<amigo_msgs::head_ref>("/head_controller/set_Head", 1);
     //arm_left_pub = n.serviceClient<amigo_kinematics::set_Arm>("/arm_left/set_tip");
     //arm_right_pub = n.serviceClient<amigo_kinematics::set_Arm>("/arm_right/set_tip");
+
+    ros::Subscriber torso_sub = n.subscribe("/spindle_position", 1, &TorsoCallback);
+    torso_pub = n.advertise<amigo_msgs::spindle_setpoint>("/spindle_controller/spindle_coordinates", 1);
+
     arm_left_pub = n.advertise<geometry_msgs::TwistStamped>("/arm_left_controller/cartesian_velocity_reference",1);
     arm_right_pub = n.advertise<geometry_msgs::TwistStamped>("/arm_right_controller/cartesian_velocity_reference",1);
 
@@ -257,7 +213,7 @@ int main(int argc, char** argv){
     n.param<double> (ns+"/max_linear_speed_arms", max_linear_speed_arms, 0.05);
     n.param<double> (ns+"/max_angular_speed_arms", max_angular_speed_arms, 0.1);
 
-    ros::Rate rate(15);
+    ros::Rate rate(loop_rate);
     while (n.ok()){
 
         ros::spinOnce();
