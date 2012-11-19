@@ -17,6 +17,7 @@ bool pressed;
 double init_time;
 double last_time;
 uint mode = 0;
+uint previous_mode = 0;
 
 double minimum_movement;
 double joystick_range;
@@ -87,7 +88,7 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
     {
         case 1:
         {
-            ROS_INFO("Moving head mode");
+            if (mode != previous_mode) ROS_INFO("Moving head mode");
             double pan = dof[5];
             double tilt = dof[4];
 
@@ -106,7 +107,7 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
         }
         case 2:
         {
-            ROS_INFO("Moving base mode");
+            if (mode != previous_mode) ROS_INFO("Moving base mode");
 
             geometry_msgs::Twist vel_msg;
             vel_msg.linear.x = max_linear_speed_base * dof[0];
@@ -121,13 +122,15 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
         case 3:
         {
 
-            ROS_INFO("Moving torso mode");
+            if (mode != previous_mode) ROS_INFO("Moving torso mode");
 
             amigo_msgs::spindle_setpoint torso_msg;
             torso_msg.pos = current_torso_pos + max_torso_speed * dof[2] / loop_rate;
             torso_msg.vel = max_torso_speed * dof[2];
             torso_msg.stop = 0;
 
+			//ROS_INFO("Torso speed = %f", max_torso_speed * dof[2]);
+			
             torso_pub.publish(torso_msg);
             break;
 
@@ -135,9 +138,9 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
         case 4:
         {
-            ROS_INFO("Moving left arm mode");
+            if (mode != previous_mode) ROS_INFO("Moving left arm mode");
 
-            ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", max_linear_speed_arms * dof[0], max_linear_speed_arms * dof[1], max_linear_speed_arms * dof[2], max_angular_speed_arms * dof[3], max_angular_speed_arms * dof[4], max_angular_speed_arms * dof[5]);
+            //ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", max_linear_speed_arms * dof[0], max_linear_speed_arms * dof[1], max_linear_speed_arms * dof[2], max_angular_speed_arms * dof[3], max_angular_speed_arms * dof[4], max_angular_speed_arms * dof[5]);
 
             geometry_msgs::TwistStamped arm_msg;
 
@@ -155,9 +158,9 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
         }
         case 5:
         {
-            ROS_INFO("Moving right arm mode");
+            if (mode != previous_mode) ROS_INFO("Moving right arm mode");
 
-            ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", max_linear_speed_arms * dof[0], max_linear_speed_arms * dof[1], max_linear_speed_arms * dof[2], max_angular_speed_arms * dof[3], max_angular_speed_arms * dof[4], max_angular_speed_arms * dof[5]);
+            //ROS_INFO("vx = %f  \t vy = %f \t vz = %f \t vr = %f \t vp = %f \t vy = %f ", max_linear_speed_arms * dof[0], max_linear_speed_arms * dof[1], max_linear_speed_arms * dof[2], max_angular_speed_arms * dof[3], max_angular_speed_arms * dof[4], max_angular_speed_arms * dof[5]);
 
             geometry_msgs::TwistStamped arm_msg;
 
@@ -174,6 +177,8 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
             break;
         }
     }
+    
+    previous_mode = mode;
 
 }
 
@@ -212,6 +217,7 @@ int main(int argc, char** argv){
     n.param<double> (ns+"/max_angular_speed_base", max_angular_speed_base, 0.8);
     n.param<double> (ns+"/max_linear_speed_arms", max_linear_speed_arms, 0.05);
     n.param<double> (ns+"/max_angular_speed_arms", max_angular_speed_arms, 0.1);
+    n.param<double> (ns+"/max_torso_speed", max_torso_speed, 0.5);
 
     ros::Rate rate(loop_rate);
     while (n.ok()){
