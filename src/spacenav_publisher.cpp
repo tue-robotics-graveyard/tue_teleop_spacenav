@@ -7,7 +7,7 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <amigo_msgs/head_ref.h>
-#include <amigo_kinematics/set_Arm.h>
+//#include <amigo_kinematics/set_Arm.h>
 #include <amigo_msgs/spindle_setpoint.h>
 
 // Global variables
