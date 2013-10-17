@@ -3,12 +3,9 @@
 #include <math.h>
 #include "sensor_msgs/Joy.h"
 
-#include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TwistStamped.h>
-#include <amigo_msgs/head_ref.h>
-//#include <amigo_kinematics/set_Arm.h>
-#include <amigo_msgs/spindle_setpoint.h>
+#include <sensor_msgs/JointState.h>
 
 // Global variables
 double loop_rate = 15;
@@ -26,8 +23,7 @@ double max_angular_speed_base;
 
 ros::Publisher vel_pub;
 ros::Publisher head_pub;
-//ros::ServiceClient arm_left_pub;
-//ros::ServiceClient arm_right_pub;
+
 ros::Publisher torso_pub;
 ros::Publisher arm_left_pub;
 ros::Publisher arm_right_pub;
@@ -98,11 +94,13 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
                 ROS_INFO("Bigger angle");
                 angle_factor = 2.5;
             }
-            amigo_msgs::head_ref head_msg;
-            head_msg.head_pan = pan*angle_factor;
-            head_msg.head_tilt = tilt;
+            sensor_msgs::JointState head_msg;
+            head_msg.name.push_back("neck_pan_joint");
+            head_msg.name.push_back("neck_tilt_joint");
+            head_msg.position.push_back(pan*angle_factor);
+            head_msg.position.push_back(tilt);
             head_pub.publish(head_msg);
-            ROS_DEBUG("pan = %f \t tilt = %f \t ",head_msg.head_pan,head_msg.head_tilt);
+            ROS_DEBUG("pan = %f \t tilt = %f \t ",head_msg.position[0],head_msg.position[1]);
             break;
         }
         case 2:
@@ -124,11 +122,11 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
             if (mode != previous_mode) ROS_INFO("Moving torso mode");
 
-            amigo_msgs::spindle_setpoint torso_msg;
-            torso_msg.pos = current_torso_pos + max_torso_speed * dof[2] / loop_rate;
-            torso_msg.vel = max_torso_speed * dof[2];
-            torso_msg.stop = 0;
-
+            sensor_msgs::JointState torso_msg;
+            torso_msg.name.push_back("torso_joint");
+            torso_msg.position.push_back(current_torso_pos + max_torso_speed * dof[2] / loop_rate);
+            torso_msg.velocity.push_back(max_torso_speed * dof[2]);
+            
 			//ROS_INFO("Torso speed = %f", max_torso_speed * dof[2]);
 			
             torso_pub.publish(torso_msg);
@@ -182,10 +180,10 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 
 }
 
-void TorsoCallback(const std_msgs::Float64::ConstPtr& msg) {
+void TorsoCallback(const sensor_msgs::JointState::ConstPtr& msg) {
 
     // Fill in data in spindle position
-    current_torso_pos = msg->data;
+    current_torso_pos = msg->position[0];
 
 }
 
@@ -198,12 +196,10 @@ int main(int argc, char** argv){
     ros::NodeHandle n;
     ros::Subscriber spacenav_sub = n.subscribe("/spacenav/joy", 1, &SpaceNavCallback);
     vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
-    head_pub = n.advertise<amigo_msgs::head_ref>("/head_controller/set_Head", 1);
-    //arm_left_pub = n.serviceClient<amigo_kinematics::set_Arm>("/arm_left/set_tip");
-    //arm_right_pub = n.serviceClient<amigo_kinematics::set_Arm>("/arm_right/set_tip");
+    head_pub = n.advertise<sensor_msgs::JointState>("/head_controller/set_Head", 1);
 
     ros::Subscriber torso_sub = n.subscribe("/spindle_position", 1, &TorsoCallback);
-    torso_pub = n.advertise<amigo_msgs::spindle_setpoint>("/spindle_controller/spindle_coordinates", 1);
+    torso_pub = n.advertise<sensor_msgs::JointState>("/spindle_controller/spindle_coordinates", 1);
 
     arm_left_pub = n.advertise<geometry_msgs::TwistStamped>("/arm_left_controller/cartesian_velocity_reference",1);
     arm_right_pub = n.advertise<geometry_msgs::TwistStamped>("/arm_right_controller/cartesian_velocity_reference",1);

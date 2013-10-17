@@ -9,6 +9,8 @@
   	<param name="max_linear_speed_arms" value="0.1"/>
   	<param name="max_angular_speed_arms" value="0.2"/>
   	<param name="max_torso_speed" value="0.5"/>
+  	
+  	<remap from="/cmd_vel" to="/amigo/base/references"/>
   
   </node>
 
