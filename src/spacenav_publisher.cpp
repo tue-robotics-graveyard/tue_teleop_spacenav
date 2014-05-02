@@ -196,10 +196,10 @@ int main(int argc, char** argv){
     ros::NodeHandle n;
     ros::Subscriber spacenav_sub = n.subscribe("/spacenav/joy", 1, &SpaceNavCallback);
     vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
-    head_pub = n.advertise<sensor_msgs::JointState>("/amigo/neck/references", 1);
+    head_pub = n.advertise<sensor_msgs::JointState>("/neck/references", 1);
 
-    ros::Subscriber torso_sub = n.subscribe("/amigo/torso/measurements", 1, &TorsoCallback);
-    torso_pub = n.advertise<sensor_msgs::JointState>("/amigo/torso/references", 1);
+    ros::Subscriber torso_sub = n.subscribe("/torso/measurements", 1, &TorsoCallback);
+    torso_pub = n.advertise<sensor_msgs::JointState>("/torso/references", 1);
 
     arm_left_pub = n.advertise<geometry_msgs::TwistStamped>("/arm_left_controller/cartesian_velocity_reference",1);
     arm_right_pub = n.advertise<geometry_msgs::TwistStamped>("/arm_right_controller/cartesian_velocity_reference",1);
