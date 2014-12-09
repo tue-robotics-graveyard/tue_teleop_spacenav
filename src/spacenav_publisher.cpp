@@ -43,7 +43,7 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
 {
     double current_time = ros::WallTime::now().toSec() - init_time;
     //double dt = current_time - last_time; //Only required when using the service calls for the arms
-    last_time = current_time;
+    //last_time = current_time;
 
     bool button1 = msg->buttons[0];
     bool button2 = msg->buttons[1];
@@ -53,15 +53,26 @@ void SpaceNavCallback(const sensor_msgs::Joy::ConstPtr& msg)
     for ( uint i = 0; i < 6; i++ )
     {
         dof[i] = msg->axes[i] / joystick_range;
-        if ( dof[i] > minimum_movement )
+        if ( dof[i] > minimum_movement ) {
             dof[i] = ( dof[i] - minimum_movement )/( 1 - minimum_movement );
-        else if ( dof[i] < -minimum_movement )
+            last_time = ros::Time::now().toSec() - init_time;
+        } else if ( dof[i] < -minimum_movement ) {
             dof[i] = ( dof[i] + minimum_movement )/( 1 - minimum_movement );
-        else
+            last_time = ros::Time::now().toSec() - init_time;
+        } else {
             dof[i] = 0;
+		}
     }
     ROS_DEBUG("x = %f  \t  y = %f  \t  z = %f  \t  x_ang = %f  \t  y_ang = %f  \t  z_ang = %f  \t  ", dof[0], dof[1], dof[2], dof[3], dof[4], dof[5]);
-
+    
+    // Safety/convenience: switch off after 10 seconds
+    if (pressed) {
+		last_time = ros::Time::now().toSec() - init_time;
+	}
+    if ( (current_time - last_time) > 10.0 && mode != 0) {
+		ROS_INFO("Spacenav: no input for 10 seconds, going to idle");
+		mode = 0;
+	}
 
     // Switch between modes:
     if (button1){
