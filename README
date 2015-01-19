@@ -1,5 +1,0 @@
-To get the spacenav to work, run
-$ cd /etc/init.d
-$ sudo spacenavd
-
-Roslaunch the launch file for either amigo or sergio
