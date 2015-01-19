@@ -1,9 +1,0 @@
-<deps ros_distro="groovy">
-    <stack name="joystick_drivers" type="system" source="ros-groovy-joystick-drivers"/>
-</deps>
-
-<deps>
-    <library name="libspnav-dev" type="system"/>
-</deps>
-
-
