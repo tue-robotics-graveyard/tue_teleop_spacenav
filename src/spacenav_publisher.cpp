@@ -1,7 +1,7 @@
 #include <ros/ros.h>
-//#include <joy/Joy.h>
 #include <math.h>
-#include "sensor_msgs/Joy.h"
+
+#include <sensor_msgs/Joy.h>
 
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TwistStamped.h>
