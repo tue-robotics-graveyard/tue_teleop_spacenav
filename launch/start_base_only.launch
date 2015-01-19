@@ -1,0 +1,7 @@
+<launch>
+
+    <node name="spacenav_node" pkg="spacenav_node" type="spacenav_node"/>
+
+    <node name="teleop_spacenav" pkg="tue_teleop_spacenav" type="spacenav_publisher_base_only" output="screen" />
+
+</launch>

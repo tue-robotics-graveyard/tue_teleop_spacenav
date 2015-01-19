@@ -1,7 +1,0 @@
-<launch>
-   <node name="spacenav_node" pkg="spacenav_node" type="spacenav_node"/>
-  <node name="amigo_teleop_spacenav_base_only" pkg="amigo_teleop_spacenav" type="spacenav_publisher_base_only" output="screen">
-  </node>
-
-</launch>
-
