@@ -20,5 +20,6 @@
   <run_depend>sensor_msgs</run_depend>
 
   <run_depend>spacenav_node</run_depend>
+  <run_depend>lcsr_tf_tools</run_depend>
 
 </package>
