@@ -1,5 +1,7 @@
 # TU/e teleop spacenav
 
+DEPRECATED: USE http://wiki.ros.org/spacenav_node instead!
+
 ## Installation
 Clone the repository in your catkin workspace and catkin_make.
 Then install all dependencies (spacenavd):
